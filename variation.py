@@ -67,8 +67,7 @@ def calculate_year_variation(variation_option):
     return '{}{}'.format(round(current_variation), variation_direction)
 
 
-def get_variation():
-    variation_option = sys.argv[1]
+def get_variation(variation_option):
     variation_option_type = define_variation_option_type(variation_option)
     if variation_option_type == 'file':
         variation_option = read_file(variation_option)
@@ -82,6 +81,6 @@ def get_variation():
 
 if __name__ == '__main__':
     parse_help()
-    variation = get_variation() 
+    variation = get_variation(sys.argv[1]) 
     print(variation)
     exit(0) 
