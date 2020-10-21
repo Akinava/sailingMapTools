@@ -51,6 +51,9 @@ def get_deviation(options):
 
     if first_line == 1 and m1 > 30:
         m1 = -(360 - m1)
+
+    if last_line == 1 and m2 > 30:
+        m2 = -(360 - m2)
     
     k = (m1 - m2)/(c1 - c2)
     t = m1 - c1 * k
