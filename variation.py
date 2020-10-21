@@ -10,6 +10,11 @@ __version__ = [0, 0]
 import sys
 import os
 from datetime import date
+from utility import (parse_help,
+        read_file,
+        get_option,
+        angle_cast,
+        course_to_number)
 
 
 def print_help():
@@ -21,17 +26,6 @@ def print_help():
     print('help: -h | print help')
 
 
-def parse_help():
-    if '-h' in sys.argv:
-        print_help()
-        exit(0)
-
-
-def read_file(file_path):
-    with open(file_path) as f:
-        return f.read()
-
-
 def define_variation_option_type(variation_option):
     if os.path.isfile(variation_option):
         return 'file'
@@ -41,7 +35,7 @@ def define_variation_option_type(variation_option):
 
 
 def parse_year_variation(variation_option):
-    variation_option = variation_option.replace('\n', '')
+    variation_option = variation_option.replace('\n', '').upper()
     degrees, minutes_direction, year, year_variation_direction = variation_option.split(' ')
     minutes = minutes_direction[:-1]
     variation_direction = minutes_direction[-1:]
@@ -67,7 +61,8 @@ def calculate_year_variation(variation_option):
     return '{}{}'.format(round(current_variation), variation_direction)
 
 
-def get_variation(variation_option):
+def parse_variation():
+    variation_option = get_option('-v')
     variation_option_type = define_variation_option_type(variation_option)
     if variation_option_type == 'file':
         variation_option = read_file(variation_option)
@@ -79,8 +74,57 @@ def get_variation(variation_option):
     return variation_option
 
 
+def parse_true_course():
+    true_course = get_option('-t')
+    if true_course:
+        return angle_cast(int(true_course))
+    return true_course
+
+
+def parse_magnetic_course():
+    magnetic_course = get_option('-m')
+    if magnetic_course:
+        return angle_cast(int(magnetic_course))
+    return magnetic_course
+
+
+def calculate_true_course(options):
+    options['true_course'] = angle_cast(options['magnetic_course'] + course_to_number(options['variation']))
+    return options
+
+
+def calculate_magnetic_course(option):
+    options['magnetic_course'] = angle_cast(options['true_course'] - course_to_number(options['variation']))
+    return options
+
+
+def calculate_variation(options):
+    pass
+
+
+def calculate(options):
+    if options['true_course'] is None and options['magnetic_course'] is None:
+        return options
+    if options['true_course'] is None:
+        return calculate_true_course(options)
+    if options['magnetic_course'] is None:
+        return calculate_magnetic_course(options)
+    if options['variation'] is None:
+        return calculate_variation(options)
+    raise Exception('deviation task error')
+
+
+def op_parse():
+    parse_help(print_help)
+    true_course = parse_true_course()
+    magnetic_course = parse_magnetic_course()
+    variation = parse_variation()
+    return {'true_course': true_course, 'magnetic_course': magnetic_course, 'variation': variation}
+
+
+
 if __name__ == '__main__':
-    parse_help()
-    variation = get_variation(sys.argv[1]) 
-    print(variation)
+    options = op_parse()
+    result = calculate(options)
+    print(result)
     exit(0) 

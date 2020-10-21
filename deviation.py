@@ -8,6 +8,12 @@ __version__ = [0, 0]
 
 
 import sys
+from utility import (
+        course_to_number,
+        parse_help,
+        get_option,
+        angle_cast,
+        read_file)
 
 
 def print_help():
@@ -22,35 +28,12 @@ def print_help():
     print('help: -h | print help')
 
 
-def parse_help():
-    if '-h' in sys.argv:
-        print_help()
-        exit(0)
-
-
-def read_file(file_path):
-    with open(file_path) as f:
-        return f.read()
-
-def get_option(option):
-    if not option in sys.argv:
-        return None
-    option_index = sys.argv.index(option)
-    if option_index+1 == len(sys.argv):
-        return None
-    return sys.argv[option_index+1]
-
-
-def angle_cast(angle):
-    while angle > 359:
-        angle -= 360
-    while angle < 0:
-        angle += 360
-    return angle
-
-
 def get_deviation(options):
     deviation_file = read_file(options['deviation'])
+
+    if deviation_file is None:
+        return course_to_number(options['deviation'])
+
     deviation_file_lines = deviation_file.split('\n')
     course = options['magnetic_course'] if options['compass_course'] is None else options['compass_course']
   
@@ -63,12 +46,15 @@ def get_deviation(options):
     if last_line > 12:
         last_line = 1
 
-    x1, y1 = map(int, deviation_file_lines[first_line].split(','))
-    x2, y2 = map(int, deviation_file_lines[last_line].split(','))
+    c1, m1 = map(int, deviation_file_lines[first_line].split(','))
+    c2, m2 = map(int, deviation_file_lines[last_line].split(','))
+
+    if first_line == 1 and m1 > 30:
+        m1 = -(360 - m1)
     
-    k = (y1 - y2)/(x1 - x2)
-    m = y1 - x1 * k
-    deviation_course = course * k + m
+    k = (m1 - m2)/(c1 - c2)
+    t = m1 - c1 * k
+    deviation_course = course * k + t
     # E+ W-
     deviation = round(deviation_course - course)
     if deviation > 0:
@@ -126,7 +112,7 @@ def parse_deviation():
 
 
 def op_parse():
-    parse_help()
+    parse_help(print_help)
     magnetic_course = parse_magnetic_course()
     compass_course = parse_compass_course()
     deviation = parse_deviation()
@@ -137,3 +123,4 @@ if __name__ == '__main__':
     options = op_parse()
     result = calculate(options)
     print(result)
+    exit(0)
