@@ -7,7 +7,6 @@ __license__ = 'MIT License'
 __version__ = [0, 0]
 
 
-import sys
 import os
 from datetime import date
 from utility import (parse_help,
@@ -19,9 +18,10 @@ from utility import (parse_help,
 
 def print_help():
     print('run:', __file__, 'args')
-    print('example:', __file__, '\'5w\'')
-    print('example:', __file__, '\'3 35E 2007 (5E)\'')
-    print('example:', __file__, '\'./path/to/variation_file.txt\'')
+    print('args: -t true_course -m magnetic_course, -v variation')
+    print('example:', __file__, '-v \'5w\'')
+    print('example:', __file__, '-v \'3 35E 2007 (5E)\'')
+    print('example:', __file__, '-v \'./path/to/variation_file.txt\'')
     print('example of file variation_file.txt > \'3 35E 2007 (5E)\'')
     print('help: -h | print help')
 
@@ -90,28 +90,27 @@ def parse_magnetic_course():
 
 def calculate_true_course(options):
     options['true_course'] = angle_cast(options['magnetic_course'] + course_to_number(options['variation']))
-    return options
 
 
 def calculate_magnetic_course(option):
     options['magnetic_course'] = angle_cast(options['true_course'] - course_to_number(options['variation']))
-    return options
 
 
 def calculate_variation(options):
-    pass
+    variation = options['true_course'] - options['magnetic_course']
+    options['variation'] = number_to_course(variation)
 
 
 def calculate(options):
-    if options['true_course'] is None and options['magnetic_course'] is None:
-        return options
     if options['true_course'] is None:
-        return calculate_true_course(options)
-    if options['magnetic_course'] is None:
-        return calculate_magnetic_course(options)
-    if options['variation'] is None:
-        return calculate_variation(options)
-    raise Exception('deviation task error')
+        calculate_true_course(options)
+    elif options['magnetic_course'] is None:
+        calculate_magnetic_course(options)
+    elif options['variation'] is None:
+        calculate_variation(options)
+    else:
+        raise Exception('deviation task error')
+    return options
 
 
 def op_parse():

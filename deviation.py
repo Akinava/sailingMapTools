@@ -7,7 +7,6 @@ __license__ = 'MIT License'
 __version__ = [0, 0]
 
 
-import sys
 from utility import (
         course_to_number,
         parse_help,
@@ -18,6 +17,7 @@ from utility import (
 
 def print_help():
     print('run:', __file__, 'args')
+    print('args: -m magnetic_course, -c compass_course, -d deviation')
     print('example:', __file__, '-d \'/path/to/deviation_file.csv\' -m \'100\'')
     print('example:', __file__, '-d \'./path/to/deviation_file.csv\' -c \'200\'')
     print('example of file deviation_file.csv > \'C,M\'')
@@ -70,30 +70,28 @@ def get_deviation(options):
 def calculate_magnetic_course(options):
     deviation = get_deviation(options)
     options['magnetic_course'] = angle_cast(options['compass_course'] + deviation)
-    return options
 
 
 def calculate_compass_course(options):
     deviation = get_deviation(options)
     options['compass_course'] = angle_cast(options['magnetic_course'] - deviation)
-    return options
 
 
 def calculate_deviation(options):
     deviation = options['magnetic_course'] - options['compass_course']
-    if deviation > 0:
-        return '{}E'.format(deviation)
-    return '{}W'.format(-deviation)
+    options['deviation'] = number_to_course(deviation)
 
 
 def calculate(options):
     if options['magnetic_course'] is None:
-        return calculate_magnetic_course(options)
-    if options['compass_course'] is None:
-        return calculate_compass_course(options)
-    if options['deviation'] is None:
-        return calculate_deviation(options)
-    raise Exception('deviation task error')
+        calculate_magnetic_course(options)
+    elif options['compass_course'] is None:
+        calculate_compass_course(options)
+    elif options['deviation'] is None:
+        calculate_deviation(options)
+    else:
+        raise Exception('deviation task error')
+    return options
 
 
 def parse_magnetic_course():

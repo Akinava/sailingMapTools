@@ -50,3 +50,8 @@ def course_to_number(course):
     raise Exception('course does not have a direction')
 
 
+def number_to_course(course):
+    if course > 0:
+        return '{}E'.format(course)
+    else:
+        return '{}W'.format(-course)
