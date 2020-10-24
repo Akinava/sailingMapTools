@@ -9,6 +9,7 @@ __version__ = [0, 0]
 
 from utility import (
         course_to_number,
+        number_to_course,
         parse_help,
         get_option,
         angle_cast,
@@ -18,7 +19,7 @@ from utility import (
 def print_help():
     print('run:', __file__, 'args')
     print('args: -m magnetic_course, -c compass_course, -d deviation')
-    print('example:', __file__, '-d \'/path/to/deviation_file.csv\' -m \'100\'')
+    print('example:', __file__, '-d \'/5E\' -m \'100\'')
     print('example:', __file__, '-d \'./path/to/deviation_file.csv\' -c \'200\'')
     print('example of file deviation_file.csv > \'C,M\'')
     print('                                     \'0,2\'')

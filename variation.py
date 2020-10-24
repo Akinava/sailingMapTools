@@ -63,6 +63,8 @@ def calculate_year_variation(variation_option):
 
 def parse_variation():
     variation_option = get_option('-v')
+    if variation_option is None:
+        return None
     variation_option_type = define_variation_option_type(variation_option)
     if variation_option_type == 'file':
         variation_option = read_file(variation_option)
@@ -92,7 +94,7 @@ def calculate_true_course(options):
     options['true_course'] = angle_cast(options['magnetic_course'] + course_to_number(options['variation']))
 
 
-def calculate_magnetic_course(option):
+def calculate_magnetic_course(options):
     options['magnetic_course'] = angle_cast(options['true_course'] - course_to_number(options['variation']))
 
 
