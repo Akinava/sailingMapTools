@@ -26,15 +26,15 @@ def print_help():
 
 def parse_speed():
     speed = get_option('-s')
-    if speed and speed.isdigit():
-        return int(speed)
+    if speed:
+        return float(speed)
     return None
 
 
 def parse_distance():
     distance = get_option('-d')
-    if distance and distance.isdigit():
-        return int(distance)
+    if distance:
+        return float(distance)
     return None
 
 
@@ -43,8 +43,6 @@ def time_to_float(time):
 
 
 def float_to_time(time):
-    if isinstance(time, str) and ',' in time:
-        time = time.replace(',', '.')
     return timedelta(hours=float(time))
 
 
@@ -57,7 +55,7 @@ def parse_time():
     time = get_option('-t')
     if time is None:
         return None
-    if ',' in time:
+    if '.' in time:
         return float_to_time(time)
     if ':' in time:
         return string_to_time(time)
