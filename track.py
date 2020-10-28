@@ -106,7 +106,7 @@ def calculate_time(options):
 
 
 def calculate_distance(options):
-    options['distance'] = options['speed'] * time_to_float(options['time'])
+    options['distance'] = round(options['speed'] * time_to_float(options['time']), 2)
 
 
 def calculate_speed(options):
