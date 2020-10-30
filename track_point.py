@@ -8,7 +8,7 @@ __version__ = [0, 0]
 
 
 import math
-from utility import parse_help, get_option, angle_cast
+from utility import parse_help, get_option, angle_cast, coordinates_to_point, empty_point, distance_between_points, nmiles_to_longitude, calculate_course_by_points
 
 
 def print_help():
@@ -33,36 +33,6 @@ def parse_distance():
     return distance
 
 
-def coordinate_to_number(coordinate):
-    if ' ' in coordinate:
-        degree, rest = coordinate.split(' ')
-        minute = rest[:-1]
-        directions = rest[-1]
-        number = int(degree) * 60 + float(minute)
-    else:
-        degree = float(coordinate[0:-1])
-        directions = coordinate[-1]
-    return number, directions
-
-
-def nmiles_to_longitude(latitude_minutes, nmiles):
-    longitude_degrees = latitude_minutes / 60
-    return nmiles / math.cos(math.radians(longitude_degrees))
-
-
-def empty_point():
-    #                             0-90                N/S                           0-180               E/W
-    return {'latitude': {'value': None, 'directions': None}, 'longitude': {'value': None, 'directions': None}}
-
-
-def coordinates_to_point(coordinates):
-    point = empty_point()
-    latitude, longitude = coordinates.upper().split(',')
-    point['latitude']['value'], point['latitude']['directions'] = coordinate_to_number(latitude)
-    point['longitude']['value'], point['longitude']['directions'] = coordinate_to_number(longitude)
-    return point
-
-
 def point_to_coordinates(point):
     coordinates = {}
     for x in ['latitude', 'longitude']:
@@ -71,18 +41,19 @@ def point_to_coordinates(point):
     return coordinates
 
 
+def parse_point(flag):
+    coordinates = get_option(flag)
+    if coordinates:
+        return coordinates_to_point(coordinates)
+    return coordinates
+
+
 def parse_beginning_point():
-    beginning_point = get_option('-b')
-    if beginning_point:
-        return coordinates_to_point(beginning_point)
-    return beginning_point
+    return parse_point('-b')
 
 
 def parse_finishing_point():
-    finishing_point = get_option('-f')
-    if finishing_point:
-        return coordinates_to_point(finishing_point)
-    return finishing_point
+    return parse_point('-f')
 
 
 def op_parse():
@@ -94,15 +65,15 @@ def op_parse():
     return {'true_course': true_course, 'distance': distance, 'beginning_point': beginning_point, 'finishing_point': finishing_point}
 
 
-def calculate_point(p1, negative_direction, options):
+def calculate_point(p1, distance, true_course, negative_direction):
     p2 = empty_point()
-    latitude_delta = options['distance'] * math.cos(math.radians(options['true_course']))
+    latitude_delta = distance * math.cos(math.radians(true_course))
     if p1['latitude']['directions'].upper() in negative_direction:
         latitude_delta *= -1
     p2['latitude']['value'] = p1['latitude']['value'] + latitude_delta
     p2['latitude']['directions'] = p1['latitude']['directions']
 
-    longitude_delta_nm = options['distance'] * math.sin(math.radians(options['true_course']))
+    longitude_delta_nm = distance * math.sin(math.radians(true_course))
     longitude_delta = nmiles_to_longitude(p1['latitude']['value'], longitude_delta_nm)
     if p1['longitude']['directions'].upper() in negative_direction:
         longitude_delta *= -1
@@ -112,23 +83,21 @@ def calculate_point(p1, negative_direction, options):
 
 
 def calculate_finishing_point(options):
-    options['finishing_point'] = calculate_point(options['beginning_point'], 'SW', options)
+    options['finishing_point'] = calculate_point(options['beginning_point'], options['distance'], options['true_course'], 'SW')
     return
 
 
 def calculate_beginning_point(options):
-    options['beginning_point'] = calculate_point(options['finishing_point'], 'NE', options)
+    options['beginning_point'] = calculate_point(options['finishing_point'], options['distance'], options['true_course'], 'NE')
     return
 
 
 def calculate_distance(options):
-    # TODO
-    pass
+    options['distance'] = distance_between_points(options['beginning_point'], options['finishing_point'])
 
 
 def calculate_true_course(options):
-    # TODO
-    pass
+    options['true_course'] = calculate_course_by_points(options['beginning_point'], options['finishing_point'])
 
 
 def calculate(options):
@@ -136,7 +105,7 @@ def calculate(options):
         calculate_finishing_point(options)
     if options['true_course'] and options['distance'] and options['beginning_point'] is None and options['finishing_point']:
         calculate_beginning_point(options)
-    if options['true_course'] and options['distance'] is None and options['beginning_point'] and options['finishing_point']:
+    if options['distance'] is None and options['beginning_point'] and options['finishing_point']:
         calculate_distance(options)
     if options['true_course'] is None and options['distance'] and options['beginning_point'] and options['finishing_point']:
         calculate_true_course(options)
