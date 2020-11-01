@@ -17,7 +17,7 @@ def print_help():
     print('args: -b1 bearing1, -b2 bearing2')
     print('example:', __file__, '-b1 \'71 58.07365N,24.48623E\' -b2 \'6 58.17873N,24.19983E\'')
     print('example:', __file__, '-b1 \'71 58 04.5N,24 29.1E\' -b2 \'6 58 10.75N,24 12E\'')
-    print('example:', __file__, '-b1 \'71 58 04.5N,24 29.1E\' -b1 \'306 58 05.8N,23 58.3E\'')
+    print('example:', __file__, '-b1 \'71 58 04.5N,24 29.1E\' -b2 \'306 58 05.8N,23 58.3E\'')
     print('help: -h | print help')
 
 
