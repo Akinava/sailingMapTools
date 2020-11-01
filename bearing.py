@@ -16,11 +16,13 @@ def print_help():
     print('run:', __file__, 'args')
     print('args: -b1 bearing1, -b2 bearing2')
     print('example:', __file__, '-b1 \'71 58.07365N,24.48623E\' -b2 \'6 58.17873N,24.19983E\'')
+    print('example:', __file__, '-b1 \'71 58 04.5N,24 29.1E\' -b2 \'6 58 10.75N,24 12E\'')
+    print('example:', __file__, '-b1 \'71 58 04.5N,24 29.1E\' -b1 \'306 58 05.8N,23 58.3E\'')
     print('help: -h | print help')
 
 
 def parse_bearing(option):
-    bearing = coordinates_to_point(option.split(' ')[1])
+    bearing = coordinates_to_point(option.split(' ', 1)[1])
     bearing['course'] = int(option.split(' ')[0])
     return bearing
 
@@ -38,7 +40,7 @@ def calculate(options):
     bearing_course_1 = calculate_course_by_points(options['bearing1'], options['bearing2'])
 
     yacht_angle = abs(options['bearing1']['course'] - options['bearing2']['course'])
-    bearing1_angle = bearing_course_1 % 180 - options['bearing1']['course']
+    bearing1_angle = abs(180 + options['bearing1']['course'] - bearing_course_1)
     bearing2_angle = 180 - yacht_angle - bearing1_angle
 
     distance_yacht_bearing1 = distance_bearing1_bearing2 * math.sin(math.radians(bearing2_angle)) / math.sin(math.radians(yacht_angle))

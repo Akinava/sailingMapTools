@@ -86,7 +86,7 @@ def coordinate_to_number(coordinate):
 def distance_between_points(p1, p2):
     latitude_delta = p1['latitude']['value'] - p2['latitude']['value']
     longitude_delta = p1['longitude']['value'] - p2['longitude']['value']
-    longitude_delta_nm = longitudes_to_nmiles(p1['latitude']['value'], longitude_delta)
+    longitude_delta_nm = longitudes_to_nmiles(p1, p2, longitude_delta)
     distance = math.sqrt(latitude_delta**2 + longitude_delta_nm**2)
     return round(distance, 1)
 
@@ -96,7 +96,8 @@ def nmiles_to_longitude(latitude_minutes, nmiles):
     return nmiles / math.cos(math.radians(longitude_degrees))
 
 
-def longitudes_to_nmiles(latitude_minutes, longitudes):
+def longitudes_to_nmiles(p1, p2, longitudes):
+    latitude_minutes = max(p1['latitude']['value'], p2['latitude']['value'])
     longitude_degrees = latitude_minutes / 60
     return longitudes * math.cos(math.radians(longitude_degrees))
 
@@ -104,7 +105,7 @@ def longitudes_to_nmiles(latitude_minutes, longitudes):
 def calculate_course_by_points(p1, p2):
     latitude_delta = p1['latitude']['value'] - p2['latitude']['value']
     longitude_delta = p1['longitude']['value'] - p2['longitude']['value']
-    longitude_delta_nm = longitudes_to_nmiles(p1['latitude']['value'], longitude_delta)
+    longitude_delta_nm = longitudes_to_nmiles(p1, p2, longitude_delta)
     if longitude_delta_nm == 0 and latitude_delta == 0:
         options['true_course'] = None
         return
