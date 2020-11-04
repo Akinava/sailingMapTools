@@ -18,7 +18,7 @@ def print_help():
     print('run:', __file__, 'args')
     print('args: -s speed, -t time, -b time_beginning, -f time_finishing, -d distance')
     print('example:', __file__, '-s \'5\' -t \'2:30\'')
-    print('example:', __file__, '-s \'5\' -t \'2,5\'')
+    print('example:', __file__, '-s \'5\' -t \'2.5\'')
     print('example:', __file__, '-d \'10\' -s \'5\' -b \'10:20\'')
     print('example:', __file__, '-b \'1:00\' -f \'2:00\' -d \'5\'')        
     print('help: -h | print help')
@@ -52,7 +52,10 @@ def string_to_time(time):
 
 
 def parse_time():
-    time = get_option('-t')
+    return get_option('-t')
+
+
+def get_time(time):
     if time is None:
         return None
     if '.' in time:
@@ -62,8 +65,7 @@ def parse_time():
     raise Exception('parse time error')
 
 
-def parse_time_boundaries(arg):
-    time = get_option(arg)
+def parse_time_boundaries(time):
     if time is None:
         return None
     time = datetime.strptime(time, FMT)
@@ -72,11 +74,11 @@ def parse_time_boundaries(arg):
 
 
 def parse_time_beginning():
-    return parse_time_boundaries('-b')
+    return get_option('-b')
 
 
 def parse_time_finishing():
-    return parse_time_boundaries('-f')
+    return get_option('-f')
 
 
 def op_parse():
@@ -90,14 +92,20 @@ def op_parse():
 
 
 def calculate_time_delta(options):
+    options['time_beginning'] = parse_time_boundaries(options['time_beginning'])
+    options['time_finishing'] = parse_time_boundaries(options['time_finishing'])
     options['time'] = options['time_finishing'] - options['time_beginning']
 
 
 def calculate_time_finishing(options):
+    options['time_beginning'] = parse_time_boundaries(options['time_beginning'])
+    options['time'] = get_time(options['time'])
     options['time_finishing'] = options['time_beginning'] + options['time']
 
 
 def calculate_time_beginning(options):
+    options['time_finishing'] = parse_time_boundaries(options['time_finishing'])
+    options['time'] = get_time(options['time'])
     options['time_beginning'] = options['time_finishing'] - options['time']
 
 
@@ -106,6 +114,7 @@ def calculate_time(options):
 
 
 def calculate_distance(options):
+    options['time'] = get_time(options['time'])
     options['distance'] = round(options['speed'] * time_to_float(options['time']), 2)
 
 
@@ -144,11 +153,11 @@ def pprint(result):
         result['time_beginning'] = result['time_beginning'].strftime(FMT)
     if result['time_finishing']:
         result['time_finishing'] = result['time_finishing'].strftime(FMT)
-    print(result)
+    return result
 
 
 if __name__ == '__main__':
     options = op_parse()
     result = calculate(options)
-    pprint(result)
+    print(pprint(result))
     exit(0)

@@ -13,7 +13,8 @@ from utility import (parse_help,
         read_file,
         get_option,
         angle_cast,
-        course_to_number)
+        course_to_number,
+        number_to_course)
 
 
 def print_help():
@@ -62,7 +63,11 @@ def calculate_year_variation(variation_option):
 
 
 def parse_variation():
-    variation_option = get_option('-v')
+    return get_option('-v')
+
+
+def get_variation(options):
+    variation_option = options['variation']
     if variation_option is None:
         return None
     variation_option_type = define_variation_option_type(variation_option)
@@ -72,7 +77,6 @@ def parse_variation():
 
     if variation_option_type == 'year_variation':
         variation_option = calculate_year_variation(variation_option)
-
     return variation_option
 
 
@@ -91,10 +95,12 @@ def parse_magnetic_course():
 
 
 def calculate_true_course(options):
+    options['variation'] = get_variation(options)
     options['true_course'] = angle_cast(options['magnetic_course'] + course_to_number(options['variation']))
 
 
 def calculate_magnetic_course(options):
+    options['variation'] = get_variation(options)
     options['magnetic_course'] = angle_cast(options['true_course'] - course_to_number(options['variation']))
 
 

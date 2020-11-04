@@ -16,8 +16,8 @@ def print_help():
     print('run:', __file__, 'args')
     print('args: -b1 bearing1, -b2 bearing2')
     print('example:', __file__, '-b1 \'71 58.07365N,24.48623E\' -b2 \'6 58.17873N,24.19983E\'')
-    print('example:', __file__, '-b1 \'71 58 04.5N,24 29.1E\' -b2 \'6 58 10.75N,24 12E\'')
-    print('example:', __file__, '-b1 \'71 58 04.5N,24 29.1E\' -b2 \'306 58 05.8N,23 58.3E\'')
+    print('example:', __file__, '-b1 \'71 58 04.4N,24 29.2E\' -b2 \'6 58 10.8N,24 12.2E\'')
+    print('example:', __file__, '-b1 \'71 58 04.4N,24 29.2E\' -b2 \'306 58 06N,23 58.1E\'')
     print('help: -h | print help')
 
 
@@ -46,7 +46,8 @@ def calculate(options):
     distance_yacht_bearing1 = distance_bearing1_bearing2 * math.sin(math.radians(bearing2_angle)) / math.sin(math.radians(yacht_angle))
     bearing1_true_course = 180 + options['bearing1']['course']
 
-    options['yacht'] = calculate_point(options['bearing1'], distance_yacht_bearing1, bearing1_true_course, 'SW')
+    options['yacht'] = calculate_point(options['bearing1'], distance_yacht_bearing1, bearing1_true_course, 'NE')
+    print(yacht_angle, bearing1_angle, bearing2_angle, distance_yacht_bearing1)
     return options
 
 
@@ -60,11 +61,11 @@ def op_parse():
 def pprint(result):
     for key, value in result.items():
         result[key] = point_to_coordinates(value)
-    print(result)
+    return result
 
 
 if __name__ == '__main__':
     options = op_parse()
     result = calculate(options)
-    pprint(result)
+    print(pprint(result))
     exit(0)

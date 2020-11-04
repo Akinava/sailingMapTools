@@ -64,6 +64,8 @@ def empty_point():
 
 
 def coordinates_to_point(coordinates):
+    if isinstance(coordinates, dict):
+        return coordinates
     point = empty_point()
     latitude, longitude = coordinates.upper().split(',')
     point['latitude']['value'], point['latitude']['directions'] = coordinate_to_number(latitude)
@@ -137,4 +139,4 @@ def calculate_course_by_points(p1, p2):
     if longitude_delta_nm > 0 and latitude_delta < 0:
         true_course = 360 + true_course
 
-    return angle_cast(round(true_course))
+    return angle_cast(true_course)

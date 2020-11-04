@@ -49,17 +49,17 @@ def op_parse():
 
 
 def get_task(options):
-    if options['true_course'] is None and options['variation'] and options['magnetic_course']:
+    if options['true_course'] is None and not options['variation'] is None and not options['magnetic_course'] is None:
         return calculate_true_course
-    if options['true_course'] and options['variation'] is None and options['magnetic_course']:
+    if not options['true_course'] is None and options['variation'] is None and not options['magnetic_course'] is None:
         return calculate_variation
-    if options['true_course'] and options['variation'] and options['magnetic_course'] is None:
+    if not options['true_course'] is None and not options['variation'] is None and options['magnetic_course'] is None:
         return calculate_variation_magnetic_course
-    if options['magnetic_course'] is None and options['deviation'] and options['compass_course']:
+    if options['magnetic_course'] is None and not options['deviation'] is None and not options['compass_course'] is None:
         return calculate_deviation_magnetic_course 
-    if options['magnetic_course'] and options['deviation'] is None and options['compass_course']:
+    if not options['magnetic_course'] is None and options['deviation'] is None and not options['compass_course'] is None:
         return calculate_deviation 
-    if options['magnetic_course'] and options['deviation'] and options['compass_course'] is None:
+    if not options['magnetic_course'] is None and not options['deviation'] is None and options['compass_course'] is None:
         return calculate_compass_course 
 
 
